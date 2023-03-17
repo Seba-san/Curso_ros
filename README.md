@@ -1,5 +1,5 @@
 # Curso de ROS
-Bienvenido/a al la iterción **0** de un Curso de ROS.
+Bienvenido/a a la iterción **0** de un Curso de ROS.
 
 En cada carpeta encontrará los ejercicios propuestos al finalizar cada clase. Las instrucciones las encontrará en el README de cada carpeta.
 
