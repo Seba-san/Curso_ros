@@ -112,7 +112,7 @@ class Mapa:
             self.mapa[1]=['lplp','pllp','llcl','plll','pppl']
             self.mapa[2]=['lppi','lclp','kaja','lppc','pslp']
             self.mapa[3]=['pllp','llll','clcl','ppll','lplp']
-            self.mapa[4]=['llpp','lcpl','kaja','llpl','lppl']
+            self.mapa[4]=['llpp','lcpl','kaja','llpc','lppl']
             self.pose_robot=[2,0]
             self.ganaste=[2,4]
 
