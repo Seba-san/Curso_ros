@@ -44,6 +44,6 @@ y para ejecutarlo hacer:
 seguramente va a ser necesario que agregue procesamiento extra entre el topic /cmd_vel (donde publica teleop_twist_keyboard) y donde se requiere la informacion /robot_velocity.
 
 Por último los mensajes de error, info y warnings los puede ver en /rosout, o en rqt_console o en el std_out. Usando todas las asistencias se pueden hacer todos los mapas
-en 2 movimientos. La idea es que solo se pueda usar un solo tipo de asistencia y la ayuda, bajo estas condiciones va a depender del tipo de asistencia, pero se puede completar cada mapa en al menos 10 movimientos.
+en 2 movimientos. La idea es que solo se pueda usar un solo tipo de asistencia y la ayuda, bajo estas condiciones va a depender del tipo de asistencia, pero se puede completar cada mapa en al menos 10 movimientos. Cada vez que se inicializa el nodo, se carga un mapa aleatoriamente de un conjunto de mapas.
 
     
