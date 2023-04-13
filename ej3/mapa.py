@@ -126,7 +126,7 @@ class Mapa:
         self.mapa_base()
         #import pdb; pdb.set_trace()
         np.array(self.mapa)
-        lista=[0,1,2,3]
+        lista=[0,1,2,3,4,5,6,7,8]
         random.shuffle(lista)
         if lista[0]==0:
             tmp=np.array(self.mapa)
@@ -139,7 +139,23 @@ class Mapa:
             tmp=np.flip(tmp,axis=0)
             self.mapa=np.flip(tmp,axis=1).tolist()            
         if lista[0]==3:
+            tmp=np.array(self.mapa)
+            self.mapa=np.rot90(tmp).tolist() 
+        if lista[0]==4:
+            tmp=np.array(self.mapa)
+            self.mapa=np.rot90(np.rot90(tmp)).tolist() 
+        if lista[0]==5:
+            tmp=np.array(self.mapa)
+            self.mapa=np.rot90(np.rot90(np.rot90(tmp))).tolist() 
+        if lista[0]==6:
             pass
+        if lista[0]==7:
+            tmp=np.array(self.mapa)
+            self.mapa=np.flip(np.rot90(tmp),axis=0).tolist() 
+        if lista[0]==8:
+            tmp=np.array(self.mapa)
+            self.mapa=np.flip(np.rot90(tmp),axis=1).tolist() 
+        # Se puede hacer de forma sistematica una rotacion y un flip
             
         #print('mapa numero: '+ str(lista[0]))
         #import pdb; pdb.set_trace()
