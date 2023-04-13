@@ -6,6 +6,8 @@ from std_srvs.srv import Trigger as velocidad_extra
 from std_srvs.srv import Empty as saltar_caja__
 from std_srvs.srv import SetBool as teletransportacion__
 import random
+import sys
+import numpy as np
 
 
 class Mapa:
@@ -24,6 +26,7 @@ class Mapa:
         self.vel_extra=1
         self.teletrans=False
         self.saltar_caja=False
+        self.fin=False
         
     def ayuda(self,data=teletransportacion__._request_class()):
         if self.ayuda_veces==0:
@@ -69,10 +72,13 @@ class Mapa:
     def run(self):
         rospy.init_node('map_gestor')
         rate=rospy.Rate(1)
-        while not rospy.is_shutdown():
+        rospy.loginfo('Mapa del laberinto listo')
+        while not rospy.is_shutdown() and not self.fin:
             msg=self.get_obstacles()
             self.pub.publish(self.laser_process(msg))
             rate.sleep()
+        
+        rospy.loginfo('mapa terminado')
             
     def laser_process(self,msg):
         # Transforma desde la codificacion del mapa a un arreglo de float
@@ -101,70 +107,86 @@ class Mapa:
                     self.move_robot([0,0,1,0])
                     
         self.vel_extra=1
-            
-    def crear_mapa(self):
-        self.mapa=[[],[],[],[],[]]
+    
+    def mapa_base(self):
+        self.mapa=[[],[],[],[],[],[],[],[],[]]
+        self.mapa[0]=['p','p','p','p','p','p','p','p','p']
+        self.mapa[1]=['p','l','l','l','l','l','l','l','p']
+        self.mapa[2]=['p','l','p','p','l','p','p','p','p']
+        self.mapa[3]=['p','i','p','l','l','l','l','l','p']
+        self.mapa[4]=['p','p','p','l','c','l','p','p','p']
+        self.mapa[5]=['p','l','l','l','l','p','p','l','s']
+        self.mapa[6]=['p','p','p','l','l','l','p','l','p']
+        self.mapa[7]=['p','l','l','l','c','l','l','l','p']
+        self.mapa[8]=['p','p','p','p','p','p','p','p','p']
         
+        
+    
+    def crear_mapa(self):
+        self.mapa_base()
+        #import pdb; pdb.set_trace()
+        np.array(self.mapa)
         lista=[0,1,2,3]
         random.shuffle(lista)
         if lista[0]==0:
-            self.mapa[0]=['pllp','plpl','plll','plpl','pppl']
-            self.mapa[1]=['lplp','pllp','llcl','plll','pppl']
-            self.mapa[2]=['lppi','lclp','kaja','lppc','pslp']
-            self.mapa[3]=['pllp','llll','clcl','ppll','lplp']
-            self.mapa[4]=['llpp','lcpl','kaja','llpc','lppl']
-            self.pose_robot=[2,0]
-            self.ganaste=[2,4]
-
+            tmp=np.array(self.mapa)
+            self.mapa=np.flip(tmp,axis=0).tolist()
         if lista[0]==1:
-            self.mapa[0]=['pllp','ppll','ilpp','plpl','ppll']
-            self.mapa[1]=['llcp','llll','plcl','ppll','lplp']
-            self.mapa[2]=['kaja','lclc','kaja','lllc','lpll']
-            self.mapa[3]=['cllp','lppl','clpp','lpll','lplp']
-            self.mapa[4]=['llpp','plpl','ppsl','lppp','lppp']
-            self.pose_robot=[0,2]
-            self.ganaste=[4,2]
-            
+            tmp=np.array(self.mapa)
+            self.mapa=np.flip(tmp,axis=1).tolist()
         if lista[0]==2:
-            self.mapa[0]=['pllp','pcll','kaja','pllc','ppll']
-            self.mapa[1]=['lplp','llpp','clcl','llll','lppl']
-            self.mapa[2]=['lpps','pclp','kaja','lplc','pilp']
-            self.mapa[3]=['plpp','llpl','clll','lppl','lplp']
-            self.mapa[4]=['plpp','plpl','llpl','plpl','lppl']
-            self.pose_robot=[2,4]
-            self.ganaste=[2,0]
-            
+            tmp=np.array(self.mapa)
+            tmp=np.flip(tmp,axis=0)
+            self.mapa=np.flip(tmp,axis=1).tolist()            
         if lista[0]==3:
-            self.mapa[0]=['pplp','pplp','slpp','plpl','ppll']
-            self.mapa[1]=['lplp','lllp','ppcl','pllp','lpcl']
-            self.mapa[2]=['lllp','lcll','kaja','lclc','kaja']
-            self.mapa[3]=['lplp','llpp','clpl','llll','cpll']
-            self.mapa[4]=['llpp','plpl','ppil','llpp','lppl']
-            self.pose_robot=[4,2]
-            self.ganaste=[0,2]
+            pass
+            
+        #print('mapa numero: '+ str(lista[0]))
+        #import pdb; pdb.set_trace()
+        k=0
+        for i in self.mapa:
+            if 'i' in i:
+                a=i.index('i')
+                break
+            k=k+1
+            
+        self.pose_robot=[k,a]        
+        return
         
     def get_obstacles(self):
-        msg=self.mapa[self.pose_robot[0]][self.pose_robot[1]]
+        """
+        n e s o
+        """
+        x=self.pose_robot[0];y=self.pose_robot[1]
+        e=self.mapa[x][y+1]
+        s=self.mapa[x+1][y]
+        o=self.mapa[x][y-1]
+        n=self.mapa[x-1][y]
+        msg=n+e+s+o
+        #print(msg)
         return msg
     
     def check_pose(self):
         #print(self.pose_robot)
+        a=len(self.mapa[0])
         if self.pose_robot[0]<0:
             self.pose_robot[0]=0
             rospy.logwarn('saliste del mapa')
         if self.pose_robot[1]<0:
             self.pose_robot[1]=0
             rospy.logwarn('saliste del mapa')
-        if self.pose_robot[1]>4:
-            self.pose_robot[1]=4
+        if self.pose_robot[1]>a:
+            self.pose_robot[1]=a
             rospy.logwarn('saliste del mapa')
-        if self.pose_robot[0]>4:
-            self.pose_robot[1]=4
+        if self.pose_robot[0]>a:
+            self.pose_robot[0]=a
             rospy.logwarn('saliste del mapa')
-            
-        if self.pose_robot==self.ganaste:
+        x=self.pose_robot[0];y=self.pose_robot[1]
+        n=self.mapa[x][y]
+        if 's'==n:
             rospy.logwarn('Felicitaciones completaste el mapa!!')
             print('Lo hiciste en '+str(self.cuenta)+' pasos')
+            self.fin=True
             
     
     def move_robot(self,data=[]):
@@ -176,7 +198,7 @@ class Mapa:
         msg=self.get_obstacles()
         #print(msg)
         idx=data.index(1)
-        if msg[idx]=='l' or (self.teletrans and msg[idx]=='p'):
+        if msg[idx]=='l' or msg[idx]=='s' or(self.teletrans and msg[idx]=='p'):
             self.teletrans=False
             if idx==0:
                 self.pose_robot[0]=self.pose_robot[0]-1
@@ -205,6 +227,7 @@ class Mapa:
                 rospy.logwarn('no puedes moverte hacia esa direccion. Saliste del mapa, vuelves a la posicion anterior')  
                  
         else:
+            #import pdb; pdb.set_trace()
             rospy.logwarn('no puedes moverte hacia esa direccion. Hay un obstaculo')
 
 
